@@ -7,6 +7,12 @@ export interface UserData {
   sessionId: string;
 }
 
+export interface FilePart {
+  data: string;
+  mimeType: string;
+  name?: string;
+}
+
 export interface Question {
   question: string;
   options: string[];
@@ -65,4 +71,5 @@ export interface CourseFormData {
   time: string;
   format: string;
   language: Language;
+  attachments?: FilePart[];
 }

@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { CourseFormData, Language } from '../types';
+import React, { useState, useRef } from 'react';
+import { CourseFormData, Language, FilePart } from '../types';
 import { TRANSLATIONS } from '../constants';
 
 interface CourseFormProps {
@@ -12,6 +12,7 @@ interface CourseFormProps {
 const CourseForm: React.FC<CourseFormProps> = ({ onSubmit, isLoading, language }) => {
   const t = TRANSLATIONS[language].form;
   const commonT = TRANSLATIONS[language];
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<CourseFormData>({
     topic: '',
@@ -20,8 +21,48 @@ const CourseForm: React.FC<CourseFormProps> = ({ onSubmit, isLoading, language }
     objective: '',
     time: '',
     format: t.formats[3],
-    language: language
+    language: language,
+    attachments: []
   });
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFileChange = async (files: FileList | null) => {
+    if (!files) return;
+    
+    const newAttachments: FilePart[] = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+      
+      const promise = new Promise<FilePart>((resolve) => {
+        reader.onload = (e) => {
+          const base64Data = (e.target?.result as string).split(',')[1];
+          resolve({
+            data: base64Data,
+            mimeType: file.type || 'application/octet-stream',
+            name: file.name
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      newAttachments.push(await promise);
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      attachments: [...(prev.attachments || []), ...newAttachments]
+    }));
+  };
+
+  const removeAttachment = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: prev.attachments?.filter((_, i) => i !== index)
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +87,62 @@ const CourseForm: React.FC<CourseFormProps> = ({ onSubmit, isLoading, language }
                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
           </div>
+        </div>
+
+        {/* Sección de Carga de Documentos */}
+        <div className="col-span-full space-y-4">
+          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] ml-4">
+            {language === 'es' ? 'Base de Conocimiento (Opcional)' : 'Knowledge Base (Optional)'}
+          </label>
+          <div 
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFileChange(e.dataTransfer.files); }}
+            onClick={() => fileInputRef.current?.click()}
+            className={`cursor-pointer border-4 border-dashed rounded-[2.5rem] p-10 text-center transition-all ${
+              isDragging ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20' : 'border-slate-100 dark:border-slate-800 hover:border-indigo-400'
+            }`}
+          >
+            <input 
+              type="file" 
+              multiple 
+              className="hidden" 
+              ref={fileInputRef} 
+              accept=".pdf,.doc,.docx,.txt"
+              onChange={(e) => handleFileChange(e.target.files)}
+            />
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/40 rounded-2xl flex items-center justify-center text-indigo-600">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              </div>
+              <div>
+                <p className="text-slate-800 dark:text-white font-black text-lg">
+                  {language === 'es' ? 'Adjunta PDFs, Word o Texto' : 'Attach PDF, Word or Text'}
+                </p>
+                <p className="text-slate-400 dark:text-slate-500 text-sm font-medium">
+                  {language === 'es' ? 'La IA usará estos archivos para crear el contenido' : 'AI will use these files to ground the content'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Lista de archivos adjuntos */}
+          {formData.attachments && formData.attachments.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-4 ml-2">
+              {formData.attachments.map((file, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in duration-300">
+                  <span className="text-[10px] font-black text-indigo-600 uppercase tracking-tighter truncate max-w-[150px]">{file.name}</span>
+                  <button 
+                    type="button" 
+                    onClick={(e) => { e.stopPropagation(); removeAttachment(idx); }} 
+                    className="p-1 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-lg text-slate-400 hover:text-rose-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">

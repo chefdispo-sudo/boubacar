@@ -28,11 +28,11 @@ IMPORTANTE: El idioma de todo el contenido generado debe ser siempre ${langMap[d
 
 Debes incluir:
 1. Título y descripción atractiva.
-2. 5-7 objetivos de aprendizaje.
-3. De 6 a 8 Unidades (Rutas de aprendizaje).
-4. Cada unidad con un título creativo y 3 a 5 lecciones.
-5. Cada lección con bloques: Idea Clave (4-8 frases), Ejemplo Aplicado, Actividad Práctica y Test Rápido (3 preguntas).
-6. Una evaluación final de 8 a 10 preguntas.
+2. 4-5 objetivos de aprendizaje.
+3. De 4 a 6 Unidades (Rutas de aprendizaje).
+4. Cada unidad con un título creativo y 2 a 3 lecciones.
+5. Cada lección con bloques: Idea Clave (4-6 frases), Ejemplo Aplicado, Actividad Práctica y Test Rápido (3 preguntas).
+6. Una evaluación final de 6 a 8 preguntas.
 7. Dos propuestas de proyecto final integrador.
 8. Lista de fuentes y referencias reales.
 
@@ -202,7 +202,7 @@ export const TRANSLATIONS: Record<Language, any> = {
         test: "Vérification Rapide",
         checkBtn: "Vérifier les Connaissances",
         correct: "🎯 Parfait ! Vous maîtrisez les concepts de cette leçon.",
-        wrong: "💡 Bon essai. Révisez les bonnes réponses avant de continuer.",
+        wrong: "💡 Bon essai. Révisez les bonnes respuestas avant de continuer.",
         continue: "Terminer et Continuer"
       },
       final: {

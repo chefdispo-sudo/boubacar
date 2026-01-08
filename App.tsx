@@ -9,6 +9,7 @@ import { generateCourse } from './geminiService';
 import { Course, CourseFormData, Language, UserData } from './types';
 import { TRANSLATIONS } from './constants';
 import { supabase } from './supabaseClient';
+import { generateCoursePDF } from './pdfService';
 
 // URL del Webhook de Google Sheets
 const GOOGLE_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwmgSYVCTEJ_DJF7q9D6bySEMQ05zHhYMRLu4v4zu8KDGHY2Ieuy_vVL5qkKCWH0h1n/exec';
@@ -22,6 +23,7 @@ const App: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [course, setCourse] = useState<Course | null>(null);
   const [activeUnitId, setActiveUnitId] = useState<string>('');
   const [activeLessonId, setActiveLessonId] = useState<string>('');
@@ -98,36 +100,34 @@ const App: React.FC = () => {
     }
   };
 
-  const handleRegister = async (userData: UserData) => {
-    setIsLoading(true); // Mostrar estado de carga durante el registro en DB
-    
+  const handleDownloadPDF = async () => {
+    if (!course) return;
+    setIsExporting(true);
     try {
-      // 1. Guardar en Supabase (Tabla users: name, email)
+      await generateCoursePDF(course, language);
+      sendToGoogleSheet('DESCARGA_PDF', { courseTitle: course.title });
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+      alert("Error al generar el PDF.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleRegister = async (userData: UserData) => {
+    setIsLoading(true);
+    try {
       const { error } = await supabase
         .from('users')
-        .insert([
-          { 
-            name: userData.name, 
-            email: userData.email 
-          }
-        ]);
+        .insert([{ name: userData.name, email: userData.email }]);
 
-      if (error) {
-        console.warn("Supabase insert warning:", error.message);
-      } else {
-        console.log("Alumno registrado en Supabase con éxito.");
-      }
-
-      // 2. Persistencia local
+      if (error) console.warn("Supabase insert warning:", error.message);
+      
       localStorage.setItem('profesoria_user', JSON.stringify(userData));
       setUser(userData);
-
-      // 3. Sincronizar con Google Sheets (notificación email)
       sendToGoogleSheet('REGISTRO', { message: "Nuevo alumno registrado" }, userData);
-
     } catch (err) {
       console.error("Critical error during registration:", err);
-      // Fallback: permitimos acceso aunque falle la DB para no romper la UX
       localStorage.setItem('profesoria_user', JSON.stringify(userData));
       setUser(userData);
     } finally {
@@ -155,7 +155,6 @@ const App: React.FC = () => {
       }
       
       window.history.pushState({}, '', `?courseId=${newCourse.id}`);
-      
       sendToGoogleSheet('CURSO_CREADO', { 
         courseId: newCourse.id, 
         courseTitle: newCourse.title,
@@ -252,8 +251,23 @@ const App: React.FC = () => {
           </h1>
         </div>
         
-        <div className="flex items-center gap-4 sm:gap-6">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full">
+        <div className="flex items-center gap-3 sm:gap-6">
+          {view === 'classroom' && (
+            <button 
+              disabled={isExporting}
+              onClick={handleDownloadPDF}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase transition-all ${isExporting ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20'}`}
+            >
+              {isExporting ? (
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              )}
+              <span className="hidden md:inline">{isExporting ? 'Generando...' : 'Descargar PDF'}</span>
+            </button>
+          )}
+
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full hidden xs:flex">
             <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
             <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
               {isSyncing ? 'Sincronizando' : 'Conectado'}

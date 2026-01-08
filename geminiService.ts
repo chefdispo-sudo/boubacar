@@ -8,14 +8,36 @@ export const generateCourse = async (formData: CourseFormData): Promise<Course> 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   try {
+    // Prepare initial parts with the prompt
+    const parts: any[] = [{ text: COURSE_BUILDER_PROMPT(formData) }];
+
+    // If there are attachments, add them as inlineData parts
+    if (formData.attachments && formData.attachments.length > 0) {
+      formData.attachments.forEach(file => {
+        parts.push({
+          inlineData: {
+            data: file.data,
+            mimeType: file.mimeType
+          }
+        });
+      });
+      
+      // Add a directive to prioritize the attached files
+      parts.push({
+        text: "IMPORTANTE: Utiliza EXCLUSIVAMENTE o PRIORITARIAMENTE la información contenida en los archivos adjuntos para diseñar este curso. Si el archivo es un PDF o documento, analízalo a fondo y extrae los conceptos clave."
+      });
+    }
+
     const response = await ai.models.generateContent({
-      // Switched to gemini-3-pro-preview for complex instructional design tasks
-      model: "gemini-3-pro-preview",
-      contents: COURSE_BUILDER_PROMPT(formData),
+      // Switched to gemini-3-flash-preview for significantly faster course generation (low latency)
+      model: "gemini-3-flash-preview",
+      contents: { parts },
       config: {
         responseMimeType: "application/json",
         responseSchema: COURSE_SCHEMA,
         tools: [{ googleSearch: {} }],
+        // Disabling thinking budget for immediate response since the structure is fixed by the schema
+        thinkingConfig: { thinkingBudget: 0 }
       },
     });
 
