@@ -1,4 +1,12 @@
 
+export type Language = 'es' | 'en' | 'fr';
+
+export interface UserData {
+  name: string;
+  email: string;
+  sessionId: string;
+}
+
 export interface Question {
   question: string;
   options: string[];
@@ -35,6 +43,7 @@ export interface Source {
 }
 
 export interface Course {
+  id: string;
   title: string;
   description: string;
   level: string;
@@ -45,13 +54,15 @@ export interface Course {
   finalAssessment: Question[];
   finalProjects: ProjectProposal[];
   sources: Source[];
+  createdAt: number;
 }
 
 export interface CourseFormData {
   topic: string;
-  level: 'Principiante' | 'Intermedio' | 'Avanzado';
+  level: string;
   profile: string;
   objective: string;
   time: string;
-  format: 'Lecturas breves' | 'Lecturas + ejercicios' | 'Esquemas + problemas' | 'Mixto';
+  format: string;
+  language: Language;
 }

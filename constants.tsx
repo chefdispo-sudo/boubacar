@@ -1,16 +1,30 @@
 
 import { Type } from "@google/genai";
+import { Language } from "./types";
 
-export const COURSE_BUILDER_PROMPT = (data: any) => `
+export const COURSE_BUILDER_PROMPT = (data: any) => {
+  const langMap: Record<Language, string> = {
+    es: "ESPAÑOL DE ESPAÑA",
+    en: "ENGLISH (UK/US)",
+    fr: "FRANÇAIS"
+  };
+
+  return `
 Actúa como un profesor y diseñador instruccional senior experto en ${data.topic}.
 Tu misión es diseñar un curso completo para un alumno con perfil "${data.profile}", nivel "${data.level}" y cuyo objetivo es "${data.objective}".
 El tiempo disponible es "${data.time}" y el formato preferido es "${data.format}".
+
+Sigue principios de diseño instruccional (Gagné/Bloom):
+1. Engancha al alumno.
+2. Presenta la información de forma granular.
+3. Proporciona ejemplos prácticos.
+4. Evalúa con retroalimentación.
 
 Adapta la profundidad del contenido al nivel indicado. Usa un tono didáctico, cercano y humano.
 Evita párrafos gigantes; usa frases cortas y claras.
 Si el tema es complejo, usa analogías intuitivas pero mantén el rigor.
 No menciones que eres una IA ni un modelo. Habla como un profesor real.
-El idioma debe ser siempre ESPAÑOL DE ESPAÑA.
+IMPORTANTE: El idioma de todo el contenido generado debe ser siempre ${langMap[data.language as Language] || "ESPAÑOL"}.
 
 Debes incluir:
 1. Título y descripción atractiva.
@@ -22,8 +36,189 @@ Debes incluir:
 7. Dos propuestas de proyecto final integrador.
 8. Lista de fuentes y referencias reales.
 
-IMPORTANTE: Utiliza la herramienta de Google Search para asegurar que los datos, ejemplos y fuentes sean veraces y actuales.
+Utiliza la herramienta de Google Search para asegurar que los datos, ejemplos y fuentes sean veraces y actuales.
 `;
+};
+
+export const TRANSLATIONS: Record<Language, any> = {
+  es: {
+    brand: "Profesor",
+    slogan: "Tu Aula Virtual con IA",
+    subtitle: "Diseña cursos personalizados al instante. Aprende lo que quieras, cuando quieras, con tutoría inteligente.",
+    createCourse: "Crear Curso Ahora",
+    designing: "Diseñando tu Aula Virtual...",
+    syncing: "Sincronizando...",
+    synced: "Sincronizado",
+    history: "Tus Cursos Guardados",
+    noHistory: "Aún no has creado ningún curso.",
+    language: "Idioma",
+    form: {
+      topic: "¿Qué quieres aprender?",
+      topicPlaceholder: "Ej. Física Cuántica para principiantes",
+      level: "Tu Nivel",
+      profile: "Tu Perfil",
+      profilePlaceholder: "Ej. Estudiante universitario",
+      objective: "Tu Objetivo Principal",
+      objectivePlaceholder: "Ej. Aprobar el examen de acceso",
+      time: "Tiempo Disponible",
+      timePlaceholder: "Ej. 2 horas al día",
+      format: "Formato de Contenido",
+      levels: ["Principiante", "Intermedio", "Avanzado"],
+      formats: ["Lecturas breves", "Lecturas + ejercicios", "Esquemas + problemas", "Mixto"]
+    },
+    classroom: {
+      plan: "Plan de Estudios",
+      progress: "Tu Progreso",
+      lessonsOf: "de lecciones",
+      unit: "Unidad",
+      lesson: "Lección",
+      prev: "Anterior",
+      next: "Siguiente Lección",
+      start: "Empezar curso ahora",
+      objectives: "Objetivos de Aprendizaje",
+      stats: { level: "Nivel", time: "Tiempo", units: "Unidades", lessons: "Lecciones" },
+      blocks: {
+        keyIdea: "La Idea Clave",
+        example: "Caso de Uso Real",
+        activity: "Reto Práctico",
+        test: "Quick Check",
+        checkBtn: "Comprobar Conocimiento",
+        correct: "🎯 ¡Perfecto! Has dominado los conceptos de esta lección.",
+        wrong: "💡 Buen intento. Revisa las respuestas correctas antes de continuar.",
+        continue: "Completar y Seguir"
+      },
+      final: {
+        evaluation: "Evaluación Final",
+        evaluationDesc: "Demuestra todo lo que has aprendido en este viaje.",
+        submit: "Entregar Evaluación",
+        result: "Tu Resultado",
+        pass: "🏆 ¡Excelente! Has superado los objetivos del curso.",
+        fail: "📚 No te rindas. Un repaso te ayudará a consolidar estos temas.",
+        challenges: "Desafíos Finales",
+        challengesDesc: "Pon a prueba tu aprendizaje con estos proyectos prácticos.",
+        sources: "Fuentes y Referencias"
+      }
+    }
+  },
+  en: {
+    brand: "Teacher",
+    slogan: "Your AI Virtual Classroom",
+    subtitle: "Design personalized courses instantly. Learn whatever you want, whenever you want, with intelligent tutoring.",
+    createCourse: "Create Course Now",
+    designing: "Designing your Virtual Classroom...",
+    syncing: "Syncing...",
+    synced: "Synced",
+    history: "Your Saved Courses",
+    noHistory: "You haven't created any courses yet.",
+    language: "Language",
+    form: {
+      topic: "What do you want to learn?",
+      topicPlaceholder: "e.g. Quantum Physics for beginners",
+      level: "Your Level",
+      profile: "Your Profile",
+      profilePlaceholder: "e.g. University student",
+      objective: "Main Objective",
+      objectivePlaceholder: "e.g. Pass the entrance exam",
+      time: "Available Time",
+      timePlaceholder: "e.g. 2 hours per day",
+      format: "Content Format",
+      levels: ["Beginner", "Intermediate", "Advanced"],
+      formats: ["Short readings", "Readings + exercises", "Outlines + problems", "Mixed"]
+    },
+    classroom: {
+      plan: "Curriculum",
+      progress: "Your Progress",
+      lessonsOf: "of lessons",
+      unit: "Unit",
+      lesson: "Lesson",
+      prev: "Previous",
+      next: "Next Lesson",
+      start: "Start course now",
+      objectives: "Learning Objectives",
+      stats: { level: "Level", time: "Time", units: "Units", lessons: "Lessons" },
+      blocks: {
+        keyIdea: "Key Idea",
+        example: "Real World Case",
+        activity: "Practical Challenge",
+        test: "Quick Check",
+        checkBtn: "Check Knowledge",
+        correct: "🎯 Perfect! You have mastered the concepts of this lesson.",
+        wrong: "💡 Good try. Review the correct answers before continuing.",
+        continue: "Complete and Continue"
+      },
+      final: {
+        evaluation: "Final Evaluation",
+        evaluationDesc: "Show everything you've learned on this journey.",
+        submit: "Submit Evaluation",
+        result: "Your Result",
+        pass: "🏆 Excellent! You have exceeded the course objectives.",
+        fail: "📚 Don't give up. A review will help you consolidate these topics.",
+        challenges: "Final Challenges",
+        challengesDesc: "Test your learning with these practical projects.",
+        sources: "Sources & References"
+      }
+    }
+  },
+  fr: {
+    brand: "Professeur",
+    slogan: "Votre Salle de Classe IA",
+    subtitle: "Concevez des cours personnalisés instantanément. Apprenez ce que vous voulez, quand vous le souhaitez.",
+    createCourse: "Créer le cours maintenant",
+    designing: "Conception de votre classe...",
+    syncing: "Synchronisation...",
+    synced: "Synchronisé",
+    history: "Vos cours enregistrés",
+    noHistory: "Vous n'avez pas encore créé de cours.",
+    language: "Langue",
+    form: {
+      topic: "Que voulez-vous apprendre ?",
+      topicPlaceholder: "Ex. Physique quantique pour débutants",
+      level: "Votre Niveau",
+      profile: "Votre Profil",
+      profilePlaceholder: "Ex. Étudiant universitaire",
+      objective: "Objectif Principal",
+      objectivePlaceholder: "Ex. Réussir l'examen d'entrée",
+      time: "Temps Disponible",
+      timePlaceholder: "Ex. 2 heures par jour",
+      format: "Format du Contenu",
+      levels: ["Débutant", "Intermédiaire", "Avancé"],
+      formats: ["Lectures courtes", "Lectures + exercices", "Schémas + problèmes", "Mixte"]
+    },
+    classroom: {
+      plan: "Programme d'Études",
+      progress: "Votre Progrès",
+      lessonsOf: "de leçons",
+      unit: "Unité",
+      lesson: "Leçon",
+      prev: "Précédent",
+      next: "Leçon Suivante",
+      start: "Commencer le cours",
+      objectives: "Objectifs d'Apprentissage",
+      stats: { level: "Niveau", time: "Temps", units: "Unités", lessons: "Leçons" },
+      blocks: {
+        keyIdea: "L'Idée Clé",
+        example: "Cas d'Utilisation Réel",
+        activity: "Défi Pratique",
+        test: "Vérification Rapide",
+        checkBtn: "Vérifier les Connaissances",
+        correct: "🎯 Parfait ! Vous maîtrisez les concepts de cette leçon.",
+        wrong: "💡 Bon essai. Révisez les bonnes réponses avant de continuer.",
+        continue: "Terminer et Continuer"
+      },
+      final: {
+        evaluation: "Évaluation Finale",
+        evaluationDesc: "Montrez tout ce que vous avez appris au cours de ce voyage.",
+        submit: "Soumettre l'Évaluation",
+        result: "Votre Résultat",
+        pass: "🏆 Excellent ! Vous avez dépassé les objectifs du cours.",
+        fail: "📚 N'abandonnez pas. Une révision vous aidera à consolider ces sujets.",
+        challenges: "Défis Finaux",
+        challengesDesc: "Testez vos acquis avec ces projets pratiques.",
+        sources: "Sources et Références"
+      }
+    }
+  }
+};
 
 export const COURSE_SCHEMA = {
   type: Type.OBJECT,
