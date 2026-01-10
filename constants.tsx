@@ -10,33 +10,23 @@ export const COURSE_BUILDER_PROMPT = (data: any) => {
   };
 
   return `
-Actúa como un profesor y diseñador instruccional senior experto en ${data.topic}.
-Tu misión es diseñar un curso completo para un alumno con perfil "${data.profile}", nivel "${data.level}" y cuyo objetivo es "${data.objective}".
-El tiempo disponible es "${data.time}" y el formato preferido es "${data.format}".
+Actúa como un profesor catedrático y diseñador instruccional senior experto en ${data.topic}.
+Tu misión es diseñar un curso ALTAMENTE ELABORADO Y PROFUNDO para un alumno con perfil "${data.profile}", nivel "${data.level}".
 
-Sigue principios de diseño instruccional (Gagné/Bloom):
-1. Engancha al alumno.
-2. Presenta la información de forma granular.
-3. Proporciona ejemplos prácticos.
-4. Evalúa con retroalimentación.
+REGLAS DE ELABORACIÓN:
+1. Nivel de Detalle: No te limites a definiciones simples. Explica los "por qué" y los "cómo" detrás de cada concepto.
+2. Estructura de Lección: Cada "Idea Clave" debe ser un análisis profundo (mínimo 6-8 frases bien estructuradas).
+3. Búsqueda de Video: Para CADA lección, usa Google Search para encontrar una URL de un video educativo (YouTube o plataformas similares) que ilustre específicamente ese tema. Pon la URL en el campo videoUrl.
+4. Rigor Académico: Usa terminología técnica adecuada al nivel pero explicada con claridad.
 
-Adapta la profundidad del contenido al nivel indicado. Usa un tono didáctico, cercano y humano.
-Evita párrafos gigantes; usa frases cortas y claras.
-Si el tema es complejo, usa analogías intuitivas pero mantén el rigor.
-No menciones que eres una IA ni un modelo. Habla como un profesor real.
-IMPORTANTE: El idioma de todo el contenido generado debe ser siempre ${langMap[data.language as Language] || "ESPAÑOL"}.
+IMPORTANTE: El idioma de todo el contenido debe ser ${langMap[data.language as Language] || "ESPAÑOL"}.
 
 Debes incluir:
-1. Título y descripción atractiva.
-2. 4-5 objetivos de aprendizaje.
-3. De 4 a 6 Unidades (Rutas de aprendizaje).
-4. Cada unidad con un título creativo y 2 a 3 lecciones.
-5. Cada lección con bloques: Idea Clave (4-6 frases), Ejemplo Aplicado, Actividad Práctica y Test Rápido (3 preguntas).
-6. Una evaluación final de 6 a 8 preguntas.
-7. Dos propuestas de proyecto final integrador.
-8. Lista de fuentes y referencias reales.
-
-Utiliza la herramienta de Google Search para asegurar que los datos, ejemplos y fuentes sean veraces y actuales.
+1. Título y descripción de alto impacto.
+2. Objetivos de aprendizaje ambiciosos.
+3. 4 a 6 Unidades con 2 a 3 lecciones cada una.
+4. En cada lección: Idea Clave extensa, Ejemplo de caso real complejo, Actividad de aplicación práctica, Video ilustrativo real (URL) y Test.
+5. Evaluación final desafiante.
 `;
 };
 
@@ -78,9 +68,10 @@ export const TRANSLATIONS: Record<Language, any> = {
       objectives: "Objetivos de Aprendizaje",
       stats: { level: "Nivel", time: "Tiempo", units: "Unidades", lessons: "Lecciones" },
       blocks: {
-        keyIdea: "La Idea Clave",
+        keyIdea: "Análisis Profundo",
         example: "Caso de Uso Real",
         activity: "Reto Práctico",
+        video: "Soporte Visual Ilustrativo",
         test: "Quick Check",
         checkBtn: "Comprobar Conocimiento",
         correct: "🎯 ¡Perfecto! Has dominado los conceptos de esta lección.",
@@ -137,9 +128,10 @@ export const TRANSLATIONS: Record<Language, any> = {
       objectives: "Learning Objectives",
       stats: { level: "Level", time: "Time", units: "Units", lessons: "Lessons" },
       blocks: {
-        keyIdea: "Key Idea",
+        keyIdea: "In-depth Analysis",
         example: "Real World Case",
         activity: "Practical Challenge",
+        video: "Illustrative Visual Support",
         test: "Quick Check",
         checkBtn: "Check Knowledge",
         correct: "🎯 Perfect! You have mastered the concepts of this lesson.",
@@ -196,9 +188,10 @@ export const TRANSLATIONS: Record<Language, any> = {
       objectives: "Objectifs d'Apprentissage",
       stats: { level: "Niveau", time: "Temps", units: "Unités", lessons: "Leçons" },
       blocks: {
-        keyIdea: "L'Idée Clé",
+        keyIdea: "Analyse Approfondie",
         example: "Cas d'Utilisation Réel",
         activity: "Défi Pratique",
+        video: "Support Visuel Illustratif",
         test: "Vérification Rapide",
         checkBtn: "Vérifier les Connaissances",
         correct: "🎯 Parfait ! Vous maîtrisez les concepts de cette leçon.",
@@ -253,6 +246,7 @@ export const COURSE_SCHEMA = {
                     keyIdea: { type: Type.STRING },
                     appliedExample: { type: Type.STRING },
                     activity: { type: Type.STRING },
+                    videoUrl: { type: Type.STRING, description: "URL de un video educativo de YouTube que ilustre este tema específico." },
                     quickTest: {
                       type: Type.ARRAY,
                       items: {

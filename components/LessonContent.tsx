@@ -23,6 +23,21 @@ const LessonContent: React.FC<LessonContentProps> = ({ lesson, onComplete, isCom
     (q, idx) => testAnswers[idx] === q.correctAnswer
   );
 
+  // Helper to extract YouTube ID or return null
+  const getEmbedUrl = (url?: string) => {
+    if (!url) return null;
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      if (match && match[2].length === 11) {
+        return `https://www.youtube.com/embed/${match[2]}`;
+      }
+    }
+    return null;
+  };
+
+  const embedUrl = getEmbedUrl(lesson.blocks.videoUrl);
+
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
       {/* Idea Clave */}
@@ -33,10 +48,45 @@ const LessonContent: React.FC<LessonContentProps> = ({ lesson, onComplete, isCom
           </div>
           <h2 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-wider">{t.keyIdea}</h2>
         </div>
-        <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg md:text-xl font-medium">
+        <div className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg md:text-xl font-medium whitespace-pre-wrap">
           {lesson.blocks.keyIdea}
-        </p>
+        </div>
       </section>
+
+      {/* Soporte Visual (Video) */}
+      {lesson.blocks.videoUrl && (
+        <section className="bg-slate-900 rounded-[2rem] p-6 md:p-8 shadow-2xl border border-slate-800">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="bg-rose-500 p-2.5 rounded-xl shadow-lg shadow-rose-500/20">
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"></path></svg>
+            </div>
+            <h2 className="text-lg font-black text-white uppercase tracking-wider">{t.video}</h2>
+          </div>
+          
+          <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-inner">
+            {embedUrl ? (
+              <iframe 
+                className="w-full h-full"
+                src={embedUrl}
+                title="Educational Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            ) : (
+              <a 
+                href={lesson.blocks.videoUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full h-full flex flex-col items-center justify-center gap-4 text-slate-400 hover:text-white transition-colors"
+              >
+                <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                <span className="font-bold text-sm uppercase tracking-widest text-center px-10">Ver material audiovisual externo</span>
+              </a>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Ejemplo Aplicado */}
       <section className="bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20 rounded-[2rem] p-8 md:p-10 border border-indigo-100 dark:border-indigo-900/40">
@@ -46,7 +96,7 @@ const LessonContent: React.FC<LessonContentProps> = ({ lesson, onComplete, isCom
           </div>
           <h2 className="text-xl font-black text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">{t.example}</h2>
         </div>
-        <div className="prose prose-indigo dark:prose-invert text-indigo-800 dark:text-indigo-300 max-w-none text-lg leading-relaxed">
+        <div className="prose prose-indigo dark:prose-invert text-indigo-800 dark:text-indigo-300 max-w-none text-lg leading-relaxed italic">
           {lesson.blocks.appliedExample}
         </div>
       </section>

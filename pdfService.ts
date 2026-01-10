@@ -49,12 +49,11 @@ export const generateCoursePDF = async (course: Course, language: Language) => {
 
   // --- CONTENIDO DEL CURSO ---
   course.units.forEach((unit, uIdx) => {
-    // Verificar espacio para nueva unidad
-    if (y > 240) { doc.addPage(); y = 20; }
+    if (y > 230) { doc.addPage(); y = 20; }
     
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
-    doc.setTextColor(79, 70, 229); // Indigo-600
+    doc.setTextColor(79, 70, 229);
     doc.text(`${classroomT.unit} ${uIdx + 1}: ${unit.title}`, margin, y);
     y += 10;
     doc.setTextColor(0, 0, 0);
@@ -66,7 +65,7 @@ export const generateCoursePDF = async (course: Course, language: Language) => {
     y += (summaryLines.length * 5) + 10;
 
     unit.lessons.forEach((lesson, lIdx) => {
-      if (y > 240) { doc.addPage(); y = 20; }
+      if (y > 230) { doc.addPage(); y = 20; }
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
@@ -74,14 +73,23 @@ export const generateCoursePDF = async (course: Course, language: Language) => {
       y += 8;
 
       // Idea Clave
-      doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
       doc.text(classroomT.blocks.keyIdea.toUpperCase(), margin, y);
       y += 5;
       doc.setFont('helvetica', 'normal');
       const keyLines = doc.splitTextToSize(lesson.blocks.keyIdea, contentWidth);
       doc.text(keyLines, margin, y);
-      y += (keyLines.length * 5) + 7;
+      y += (keyLines.length * 5) + 5;
+
+      // Video Link if exists
+      if (lesson.blocks.videoUrl) {
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(225, 29, 72); // Rose-600
+        doc.text(`VIDEO: ${lesson.blocks.videoUrl}`, margin, y);
+        y += 7;
+        doc.setTextColor(0, 0, 0);
+      }
 
       // Ejemplo
       doc.setFont('helvetica', 'bold');
@@ -94,7 +102,7 @@ export const generateCoursePDF = async (course: Course, language: Language) => {
 
       // Actividad
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(5, 150, 105); // Emerald-600
+      doc.setTextColor(5, 150, 105);
       doc.text(classroomT.blocks.activity.toUpperCase(), margin, y);
       y += 5;
       doc.setFont('helvetica', 'normal');
@@ -129,7 +137,6 @@ export const generateCoursePDF = async (course: Course, language: Language) => {
     y += 5;
   });
 
-  // --- PROYECTOS Y FUENTES ---
   doc.addPage();
   y = 20;
   doc.setFont('helvetica', 'bold');
@@ -162,6 +169,5 @@ export const generateCoursePDF = async (course: Course, language: Language) => {
     y += 5;
   });
 
-  // Guardar archivo
   doc.save(`${course.title.replace(/\s+/g, '_')}_ProfesorIA.pdf`);
 };

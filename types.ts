@@ -26,6 +26,7 @@ export interface Lesson {
     keyIdea: string;
     appliedExample: string;
     activity: string;
+    videoUrl?: string;
     quickTest: Question[];
   };
 }
