@@ -100,6 +100,13 @@ const App: React.FC = () => {
     }
   };
 
+  const handleGoHome = () => {
+    setView('home');
+    setCourse(null);
+    window.history.pushState({}, '', window.location.pathname);
+    sendToGoogleSheet('VOLVER_INICIO', { message: "Usuario regresó al home" });
+  };
+
   const handleDownloadPDF = async () => {
     if (!course) return;
     setIsExporting(true);
@@ -239,16 +246,21 @@ const App: React.FC = () => {
       <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 py-4 px-6 md:px-10 flex justify-between items-center sticky top-0 z-[60]">
         <div className="flex items-center gap-3">
           {view === 'classroom' && (
-            <button onClick={() => setView('home')} className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white rounded-xl transition-all">
+            <button onClick={handleGoHome} className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white rounded-xl transition-all" title="Volver al Inicio">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </button>
           )}
-          <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <div 
+            onClick={handleGoHome}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <h1 className="text-xl font-black text-slate-800 dark:text-white tracking-tight hidden sm:block">
+              {t.brand}<span className="text-indigo-600">IA</span>
+            </h1>
           </div>
-          <h1 className="text-xl font-black text-slate-800 dark:text-white tracking-tight hidden sm:block">
-            {t.brand}<span className="text-indigo-600">IA</span>
-          </h1>
         </div>
         
         <div className="flex items-center gap-3 sm:gap-6">
